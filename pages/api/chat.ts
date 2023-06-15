@@ -3,7 +3,7 @@ import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { FaissStore } from 'langchain/vectorstores/faiss';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import Cors from 'cors'; // Add this line to import 'cors'
+import Cors from 'cors';
 // Initialize cors middleware
 const cors = Cors({
   methods: ['POST', 'HEAD'], // This would allow POST and HEAD methods from any origin. Add or remove methods according to your needs.
