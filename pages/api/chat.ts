@@ -1,9 +1,26 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
-import { Chroma } from 'langchain/vectorstores/chroma';
 import { makeChain } from '@/utils/makechain';
-import { COLLECTION_NAME } from '@/config/chroma';
+import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { FaissStore } from 'langchain/vectorstores/faiss';
+import type { NextApiRequest, NextApiResponse } from 'next';
+
+import Cors from 'cors'; // Add this line to import 'cors'
+// Initialize cors middleware
+const cors = Cors({
+  methods: ['POST', 'HEAD'], // This would allow POST and HEAD methods from any origin. Add or remove methods according to your needs.
+});
+
+// Helper method to wait for a middleware to execute before continuing
+const runMiddleware = (req: NextApiRequest, res: NextApiResponse, fn: any) => {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result: any) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+
+      return resolve(result);
+    });
+  });
+};
 
 // Save the vector store to a directory
 const directory = 'faiss-store';
@@ -12,6 +29,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  await runMiddleware(req, res, cors);
+
   const { question, history } = req.body;
 
   console.log('question', question);
@@ -25,6 +44,7 @@ export default async function handler(
   if (!question) {
     return res.status(400).json({ message: 'No question in the request' });
   }
+
   // OpenAI recommends replacing newlines with spaces for best results
   const sanitizedQuestion = question.trim().replaceAll('\n', ' ');
 
